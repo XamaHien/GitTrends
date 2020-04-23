@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AsyncAwaitBestPractices;
+using AsyncAwaitBestPractices.MVVM;
 using Autofac;
 using GitTrends.Mobile.Shared;
 using GitTrends.Shared;
@@ -33,35 +34,52 @@ namespace GitTrends
             collectionView.SelectionChanged += HandleCollectionViewSelectionChanged;
             collectionView.SetBinding(CollectionView.ItemsSourceProperty, nameof(RepositoryViewModel.VisibleRepositoryList));
 
-            var repositoriesListRefreshView = new RefreshView
+            _refreshView = new RefreshView
             {
                 AutomationId = RepositoryPageAutomationIds.RefreshView,
                 Content = collectionView
             };
-            repositoriesListRefreshView.SetDynamicResource(RefreshView.RefreshColorProperty, nameof(BaseTheme.RefreshControlColor));
-            repositoriesListRefreshView.SetBinding(RefreshView.IsRefreshingProperty, nameof(RepositoryViewModel.IsRefreshing));
-            repositoriesListRefreshView.SetBinding(RefreshView.CommandProperty, nameof(RepositoryViewModel.PullToRefreshCommand));
+            _refreshView.SetDynamicResource(RefreshView.RefreshColorProperty, nameof(BaseTheme.PullToRefreshColor));
+            _refreshView.SetBinding(RefreshView.IsRefreshingProperty, nameof(RepositoryViewModel.IsRefreshing));
+            _refreshView.SetBinding(RefreshView.CommandProperty, nameof(RepositoryViewModel.PullToRefreshCommand));
 
             var settingsToolbarItem = new ToolbarItem
             {
                 Text = "Settings",
+                IconImageSource = Device.RuntimePlatform is Device.iOS ? "Settings" : null,
                 Order = Device.RuntimePlatform is Device.Android ? ToolbarItemOrder.Secondary : ToolbarItemOrder.Default,
                 AutomationId = RepositoryPageAutomationIds.SettingsButton,
-            };
-            settingsToolbarItem.Clicked += HandleSettingsToolbarItemCliked;
+                Command = new AsyncCommand(ExecuteSettingsToolbarItemCommand)
+            };;
             ToolbarItems.Add(settingsToolbarItem);
 
             var sortToolbarItem = new ToolbarItem
             {
                 Text = "Sort",
+                Priority = 1,
                 IconImageSource = Device.RuntimePlatform is Device.iOS ? "Sort" : null,
                 Order = Device.RuntimePlatform is Device.Android ? ToolbarItemOrder.Secondary : ToolbarItemOrder.Default,
                 AutomationId = RepositoryPageAutomationIds.SortButton,
+                Command = new AsyncCommand(ExecuteSortToolbarItemCommand)
             };
-            sortToolbarItem.Clicked += HandleSortToolbarItemCliked;
             ToolbarItems.Add(sortToolbarItem);
 
-            Content = repositoriesListRefreshView;
+            //Work-around to prevent LargeNavigationBar from collapsing when CollectionView is scrolled; prevents janky animation when LargeNavigationBar collapses
+            if (Device.RuntimePlatform is Device.iOS)
+            {
+                Content = new Grid
+                {
+                    Children =
+                    {
+                        new BoxView { HeightRequest = 0 },
+                        _refreshView
+                    }
+                };
+            }
+            else
+            {
+                Content = _refreshView;
+            }
         }
 
         public event EventHandler<string> SearchBarTextChanged
@@ -74,25 +92,33 @@ namespace GitTrends
         {
             base.OnAppearing();
 
-            if (Content is RefreshView refreshView
-                        && refreshView.Content is CollectionView collectionView
+            var token = await GitHubAuthenticationService.GetGitHubToken();
+
+            if (!FirstRunService.IsFirstRun && shouldShowWelcomePage(Navigation, token.AccessToken))
+            {
+                using var scope = ContainerService.Container.BeginLifetimeScope();
+                var welcomePage = scope.Resolve<WelcomePage>();
+
+                //Allow RepositoryPage to appear briefly before loading 
+                await Task.Delay(250);
+                await Navigation.PushModalAsync(welcomePage);
+            }
+            else if (!FirstRunService.IsFirstRun
+                        && isUserValid(token.AccessToken)
+                        && _refreshView.Content is CollectionView collectionView
                         && IsNullOrEmpty(collectionView.ItemsSource))
             {
-                var token = await GitHubAuthenticationService.GetGitHubToken();
-
-                if (GitHubAuthenticationService.Alias != DemoDataConstants.Alias
-                    && (string.IsNullOrWhiteSpace(token.AccessToken) || string.IsNullOrWhiteSpace(GitHubAuthenticationService.Alias)))
-                {
-                    var shouldNavigateToSettingsPage = await DisplayAlert(GitHubUserNotFoundConstants.Title, GitHubUserNotFoundConstants.Description, GitHubUserNotFoundConstants.Accept, GitHubUserNotFoundConstants.Decline);
-
-                    if (shouldNavigateToSettingsPage)
-                        await NavigateToSettingsPage();
-                }
-                else
-                {
-                    refreshView.IsRefreshing = true;
-                }
+                _refreshView.IsRefreshing = true;
             }
+
+            static bool shouldShowWelcomePage(in INavigation navigation, in string accessToken)
+            {
+                return !navigation.ModalStack.Any()
+                        && GitHubAuthenticationService.Alias != DemoDataConstants.Alias
+                        && !isUserValid(accessToken);
+            }
+
+            static bool isUserValid(in string accessToken) => !string.IsNullOrWhiteSpace(accessToken) || !string.IsNullOrWhiteSpace(GitHubAuthenticationService.Alias);
 
             static bool IsNullOrEmpty(in IEnumerable? enumerable) => !enumerable?.GetEnumerator().MoveNext() ?? true;
         }
@@ -130,13 +156,6 @@ namespace GitTrends
             return MainThread.InvokeOnMainThreadAsync(() => Navigation.PushAsync(trendsPage));
         }
 
-        async void HandleSettingsToolbarItemCliked(object sender, EventArgs e)
-        {
-            AnalyticsService.Track("Settings Button Tapped");
-
-            await NavigateToSettingsPage();
-        }
-
         void HandlePullToRefreshFailed(object sender, PullToRefreshFailedEventArgs e)
         {
             MainThread.BeginInvokeOnMainThread(async () =>
@@ -149,7 +168,14 @@ namespace GitTrends
             });
         }
 
-        async void HandleSortToolbarItemCliked(object sender, EventArgs e)
+        Task ExecuteSettingsToolbarItemCommand()
+        {
+            AnalyticsService.Track("Settings Button Tapped");
+
+            return NavigateToSettingsPage();
+        }
+
+        async Task ExecuteSortToolbarItemCommand()
         {
             var sortingOptions = SortingConstants.SortingOptionsDictionary.Values;
 
