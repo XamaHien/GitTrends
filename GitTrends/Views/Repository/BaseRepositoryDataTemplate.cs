@@ -37,6 +37,7 @@ namespace GitTrends
             public CardView(in IEnumerable<View> parentDataTemplateChildren)
             {
                 RowSpacing = 0;
+                HeightRequest = 100;
                 RowDefinitions = Rows.Define(
                     (CardViewRow.TopPadding, AbsoluteGridLength(TopPadding)),
                     (CardViewRow.Card, StarGridLength(1)),
@@ -55,18 +56,18 @@ namespace GitTrends
             enum CardViewRow { TopPadding, Card, BottomPadding }
             enum CardViewColumn { LeftPadding, Card, RightPadding }
 
-            class CardViewFrame : MaterialFrame
+            class CardViewFrame : Frame
             {
                 public CardViewFrame(in IEnumerable<View> parentDataTemplateChildren)
                 {
                     Padding = new Thickness(16, 16, 12, 8);
                     CornerRadius = 4;
                     HasShadow = false;
-                    Elevation = 4;
+                    // Elevation = 4;
 
                     Content = new ContentGrid(parentDataTemplateChildren);
 
-                    this.DynamicResource(MaterialThemeProperty, nameof(BaseTheme.MaterialFrameTheme));
+                    //this.DynamicResource(MaterialThemeProperty, nameof(BaseTheme.MaterialFrameTheme));
                 }
 
                 class ContentGrid : Grid
@@ -94,33 +95,33 @@ namespace GitTrends
                             (Column.Emoji3, AbsoluteGridLength(_emojiColumnSize)),
                             (Column.Statistic3, AbsoluteGridLength(_statsColumnSize)));
 
-                        Children.Add(new AvatarImage()
-                                        .Row(Row.Title).Column(Column.Avatar).RowSpan(2)
-                                        .Bind(CircleImage.ImageSourceProperty, nameof(Repository.OwnerAvatarUrl)));
+                        //Children.Add(new AvatarImage()
+                        //                .Row(Row.Title).Column(Column.Avatar).RowSpan(2)
+                        //                .Bind(CircleImage.ImageSourceProperty, nameof(Repository.OwnerAvatarUrl)));
 
-                        Children.Add(new NameLabel()
-                                        .Row(Row.Title).Column(Column.Trending).ColumnSpan(7)
-                                        .Bind(Label.TextProperty, nameof(Repository.Name)));
+                        //Children.Add(new NameLabel()
+                        //                .Row(Row.Title).Column(Column.Trending).ColumnSpan(7)
+                        //                .Bind(Label.TextProperty, nameof(Repository.Name)));
 
-                        Children.Add(new DescriptionLabel()
-                                        .Row(Row.Description).Column(Column.Trending).ColumnSpan(7)
-                                        .Bind(Label.TextProperty, nameof(Repository.Description)));
+                        //Children.Add(new DescriptionLabel()
+                        //                .Row(Row.Description).Column(Column.Trending).ColumnSpan(7)
+                        //                .Bind(Label.TextProperty, nameof(Repository.Description)));
 
-                        Children.Add(new Separator()
-                                        .Row(Row.Separator).Column(Column.Trending).ColumnSpan(7));
+                        //Children.Add(new Separator()
+                        //                .Row(Row.Separator).Column(Column.Trending).ColumnSpan(7));
 
                         //On large screens, display TrendingImage in the same column as the repository name
-                        Children.Add(new LargeScreenTrendingImage().Assign(out LargeScreenTrendingImage largeScreenTrendingImage)
-                                        .Row(Row.SeparatorPadding).Column(Column.Trending).RowSpan(2));
+                        //Children.Add(new LargeScreenTrendingImage().Assign(out LargeScreenTrendingImage largeScreenTrendingImage)
+                        //                .Row(Row.SeparatorPadding).Column(Column.Trending).RowSpan(2));
 
                         //On smaller screens, display TrendingImage under the Avatar
-                        Children.Add(new SmallScreenTrendingImage(largeScreenTrendingImage)
-                                        .Row(Row.SeparatorPadding).Column(Column.Avatar).RowSpan(2).ColumnSpan(3));
+                        //Children.Add(new SmallScreenTrendingImage(largeScreenTrendingImage)
+                        //                .Row(Row.SeparatorPadding).Column(Column.Avatar).RowSpan(2).ColumnSpan(3));
 
-                        foreach (var child in parentDataTemplateChildren)
-                        {
-                            Children.Add(child);
-                        }
+                        //foreach (var child in parentDataTemplateChildren)
+                        //{
+                        //    Children.Add(child);
+                        //}
                     }
 
                     class AvatarImage : CircleImage

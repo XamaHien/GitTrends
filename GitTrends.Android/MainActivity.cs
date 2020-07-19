@@ -35,6 +35,7 @@ namespace GitTrends.Droid
             base.OnCreate(savedInstanceState);
 
             Forms.Init(this, savedInstanceState);
+            Android.Glide.Forms.Init (this, debug: false);
 
             using var scope = ContainerService.Container.BeginLifetimeScope();
             var themeService = scope.Resolve<ThemeService>();

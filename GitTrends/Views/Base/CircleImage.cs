@@ -21,15 +21,17 @@ namespace GitTrends
 
         public CircleImage()
         {
-            this.Bind<PancakeView, double, double>(WidthProperty, nameof(Height), source: this);
+            this.Bind<PancakeView, double, double>(WidthRequestProperty, nameof(Height), source: this);
             this.Bind<PancakeView, double, double>(CornerRadiusProperty, nameof(Width), convert: convertWidthToCornerRadius, source: this);
 
             IsClippedToBounds = true;
 
-            Content = new CachedImage()
-                        .Bind(CachedImage.SourceProperty, nameof(ImageSource), source: this)
-                        .Bind(CachedImage.ErrorPlaceholderProperty, nameof(ErrorPlaceholder), source: this)
-                        .Bind(CachedImage.LoadingPlaceholderProperty, nameof(LoadingPlaceholder), source: this);
+            //Content = new CachedImage()
+            //            .Bind(CachedImage.SourceProperty, nameof(ImageSource), source: this)
+            //            .Bind(CachedImage.ErrorPlaceholderProperty, nameof(ErrorPlaceholder), source: this)
+            //            .Bind(CachedImage.LoadingPlaceholderProperty, nameof(LoadingPlaceholder), source: this);
+
+            Content = new Image().Bind(Image.SourceProperty, nameof(ImageSource), source: this);
 
             static double convertWidthToCornerRadius(double width) => width / 2;
         }

@@ -83,9 +83,9 @@ namespace GitTrends
             Add(nameof(MaterialFrameTheme), MaterialFrameTheme);
         }
 
-        public static string GetGitTrendsImageSource() => (string)(Application.Current?.Resources?[nameof(GitTrendsImageSource)] ?? "GitTrends");
-        public static string GetDefaultProfileImageSource() => (string)(Application.Current?.Resources?[nameof(DefaultProfileImageSource)] ?? "DefaultProfileImage");
-        public static string GetDefaultReferringSiteImageSource() => (string)(Application.Current?.Resources?[nameof(DefaultReferringSiteImageSource)] ?? "DefaultReferringSiteImage");
+        public static string GetGitTrendsImageSource() => (string)(Application.Current?.Resources?[nameof(GitTrendsImageSource)] ?? "GitTrends.png");
+        public static string GetDefaultProfileImageSource() => (string)(Application.Current?.Resources?[nameof(DefaultProfileImageSource)] ?? "DefaultProfileImage.png");
+        public static string GetDefaultReferringSiteImageSource() => (string)(Application.Current?.Resources?[nameof(DefaultReferringSiteImageSource)] ?? "DefaultReferringSiteImage.png");
 
         public abstract Color NavigationBarBackgroundColor { get; }
         public abstract Color NavigationBarTextColor { get; }

@@ -41,6 +41,7 @@ namespace GitTrends
             var collectionView = new CollectionView
             {
                 ItemTemplate = new RepositoryDataTemplateSelector(sortingService),
+                ItemSizingStrategy = ItemSizingStrategy.MeasureFirstItem,
                 BackgroundColor = Color.Transparent,
                 SelectionMode = SelectionMode.Single,
                 AutomationId = RepositoryPageAutomationIds.CollectionView,

@@ -71,21 +71,21 @@ namespace GitTrends
 
             static IEnumerable<View> CreateViewsDataTemplateViews() => new View[]
             {
-                new StatisticsSvgImage("total_views.svg", nameof(BaseTheme.CardViewsStatsIconColor)).Row(Row.Statistics).Column(Column.Emoji1),
+                // new StatisticsSvgImage("total_views.svg", nameof(BaseTheme.CardViewsStatsIconColor)).Row(Row.Statistics).Column(Column.Emoji1),
 
                 //Only display the value when the Repository Data finishes loading. This avoid showing '0' while the data is loading.
                 new StatisticsLabel(nameof(BaseTheme.CardViewsStatsTextColor)).Row(Row.Statistics).Column(Column.Statistic1)
                     .Bind<StatisticsLabel, long, string>(Label.TextProperty, nameof(Repository.TotalViews), convert: StatisticsLabelTextConverter)
                     .Bind<StatisticsLabel, IReadOnlyList<DailyViewsModel>, bool>(VisualElement.IsVisibleProperty, nameof(Repository.DailyViewsList), convert: IsStatisticsLabelVisibleConverter),
 
-                new StatisticsSvgImage("unique_views.svg", nameof(BaseTheme.CardUniqueViewsStatsIconColor)).Row(Row.Statistics).Column(Column.Emoji2),
+                // new StatisticsSvgImage("unique_views.svg", nameof(BaseTheme.CardUniqueViewsStatsIconColor)).Row(Row.Statistics).Column(Column.Emoji2),
 
                 //Only display the value when the Repository Data finishes loading. This avoid showing '0' while the data is loading.
                 new StatisticsLabel(nameof(BaseTheme.CardUniqueViewsStatsTextColor)).Row(Row.Statistics).Column(Column.Statistic2)
                     .Bind<StatisticsLabel, long, string>(Label.TextProperty, nameof(Repository.TotalUniqueViews), convert: StatisticsLabelTextConverter)
                     .Bind<StatisticsLabel, IReadOnlyList<DailyViewsModel>, bool>(VisualElement.IsVisibleProperty, nameof(Repository.DailyViewsList), convert: IsStatisticsLabelVisibleConverter),
 
-                new StatisticsSvgImage("star.svg", nameof(BaseTheme.CardStarsStatsIconColor)).Row(Row.Statistics).Column(Column.Emoji3),
+                // new StatisticsSvgImage("star.svg", nameof(BaseTheme.CardStarsStatsIconColor)).Row(Row.Statistics).Column(Column.Emoji3),
 
                 //Only display the value when the Repository Data finishes loading. This avoid showing '0' while the data is loading.
                 new StatisticsLabel(nameof(BaseTheme.CardStarsStatsTextColor)).Row(Row.Statistics).Column(Column.Statistic3)
